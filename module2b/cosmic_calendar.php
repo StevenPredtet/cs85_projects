@@ -21,21 +21,23 @@
         <div class="calendar-grid">
             <?php
                 // --- YOUR ENTIRE PHP SCRIPT GOES HERE ---
+                set_time_limit(60);
                      $firstName = "Steven";
 
-                $jsonString = file_get_contents('http://worldtimeapi.org/api/ip');
+                 $api = "https://timeapi.io/api/time/current/zone?timeZone=America%2FLos_Angeles";
+                $response = file_get_contents($api);
+                $data = json_decode($response);
 
-                $dataObject = json_decode($jsonString);
+                if ($data) {
+                    $dateTimeString = $data->dateTime;
+                    $month = $data->month;
 
-                if ($dataObject) {
-                    $dayOfYear = $dataObject->day_of_year;
-                    $month = $dataObject->month;
+                    $date = new DateTime($dateTimeString);
+                    $dayOfYear = (int)$date->format('z') + 1;
 
                     $nameLength = strlen($firstName);
-                    $start = $nameLength;
-                    $end = $dayOfYear;
 
-                    for ($i = $start; $i <= $end; $i++) {
+                    for ($i = $nameLength; $i <= $dayOfYear; $i++) {
                         $cssClass = "day-box";
 
                         if ($i % $nameLength == 0 && $i % $month == 0) {
@@ -54,9 +56,8 @@
             <?php
             /*
             MY DEBUGGING LOG:
-            Problem: The API call was failing on some networks causing errors.
-            Solution: Added a check to confirm $dataObject before accessing its properties,
-            preventing crashes and clarifying it was a network issue.
+            Problem: First API option did not load at all, second API option was having issues loading too, I was getting an error for the second API saying "Maximum execution time of 30 seconds exceeded."
+            Solution: Had to add "set_time_limit(60);" which allowed it to load in browser to know that my code was working.
             */
             ?>
         </div>
